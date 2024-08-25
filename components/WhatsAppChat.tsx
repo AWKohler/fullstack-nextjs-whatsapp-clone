@@ -437,7 +437,7 @@
 
 
 
-//
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -552,12 +552,14 @@ export default function WhatsAppChat({ userId }: { userId: string }) {
     return <div className="text-white w-full flex items-center justify-center">Failed to initialize chat</div>;
   }
 
+  // @ts-ignore
   return (
     <div id="root">
       <Chat client={chatClient}>
         <StreamVideo client={videoClient}>
           <StreamTheme as="main" className="main-container">
             <div className="channel-list-container">
+              {/*@ts-ignore*/}
               <ChannelListHeader user={chatClient.user} />
               <ChannelList
                 sort={sort}
@@ -676,10 +678,17 @@ export default function WhatsAppChat({ userId }: { userId: string }) {
 //     // };
 //
 //     return () => {
-//       setTimeout(() => {
-//         chatClient?.disconnectUser();
-//         videoClient?.disconnectUser();
-//       }, 0);
+//       const disconnect = async () => {
+//         if (chatClient) {
+//           setChatClient(null);
+//           await chatClient.disconnectUser();
+//         }
+//         if (videoClient) {
+//           setVideoClient(null);
+//           await videoClient.disconnectUser();
+//         }
+//       };
+//       disconnect();
 //     };
 //
 //   }, [userId, apiKey, user]);
