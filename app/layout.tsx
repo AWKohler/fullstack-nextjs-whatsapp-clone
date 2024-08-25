@@ -25,8 +25,8 @@ import './globals.css';
 import { ClerkProvider } from '@clerk/nextjs';
 
 export const metadata = {
-  title: 'Whatsapp Clone',
-  description: 'Created and powered by Stream',
+  title: 'Botflow support',
+  description: 'Receive support for the Botflow.io platform',
 };
 
 export default function RootLayout({
