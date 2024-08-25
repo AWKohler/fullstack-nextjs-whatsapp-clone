@@ -437,152 +437,7 @@
 
 
 
-
-'use client';
-
-import { useEffect, useState } from 'react';
-import { StreamChat, ChannelSort, ChannelFilters } from 'stream-chat';
-import { ChannelList, Chat, useChannelPreviewInfo } from 'stream-chat-react';
-import { Channel } from './Channel';
-import {
-  StreamTheme,
-  StreamVideo,
-  StreamVideoClient,
-} from '@stream-io/video-react-sdk';
-import { Video } from './Video';
-import '@stream-io/video-react-sdk/dist/css/styles.css';
-import './layout.css';
-import './styles/index.scss';
-import ChannelListHeader from './ChannelListHeader';
-import { useUser } from '@clerk/nextjs';
-
-export default function WhatsAppChat({ userId }: { userId: string }) {
-  const apiKey = process.env.NEXT_PUBLIC_REACT_APP_STREAM_KEY || 'Set API Key';
-
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [chatClient, setChatClient] = useState<StreamChat | null>(null);
-  const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(null);
-  const { user } = useUser();
-
-  const sort: ChannelSort = { last_message_at: -1 };
-  const filters: ChannelFilters = {
-    type: 'messaging',
-    members: { $in: [userId] },
-  };
-
-  useEffect(() => {
-    const initChat = async () => {
-      const client = StreamChat.getInstance(apiKey);
-
-      try {
-        const response = await fetch('/api/create-user', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userId: userId }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to create user');
-        }
-
-        const { userToken } = await response.json();
-
-        await client.connectUser(
-          {
-            id: userId,
-            name: user?.emailAddresses[0].emailAddress,
-            image: user?.imageUrl,
-          },
-          userToken
-        );
-
-        const _videoClient = new StreamVideoClient({
-          apiKey,
-          user: {
-            id: userId,
-            name: user?.emailAddresses[0].emailAddress,
-            image: user?.imageUrl,
-          },
-          token: userToken,
-        });
-
-        await _videoClient.connectUser({
-          id: userId,
-          name: user?.emailAddresses[0].emailAddress,
-          image: user?.imageUrl,
-        }, userToken);
-
-        setChatClient(client);
-        setVideoClient(_videoClient);
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error initializing chat:', error);
-        setIsLoading(false);
-      }
-    };
-
-    if (user) {
-      initChat();
-    }
-
-    return () => {
-      chatClient?.disconnectUser();
-      videoClient?.disconnectUser();
-    };
-  }, [userId, apiKey, user]);
-
-  const ChannelPreviewCustom = (previewProps: any) => {
-    const { displayImage, displayTitle } = useChannelPreviewInfo(previewProps);
-
-    return (
-      <div className="channel-preview">
-        <img src={displayImage} alt={displayTitle} className="channel-preview__avatar" />
-        <div className="channel-preview__name">{displayTitle}</div>
-      </div>
-    );
-  };
-
-  if (isLoading) {
-    return <div className="text-white w-full flex items-center justify-center">Loading…</div>;
-  }
-
-  if (!chatClient || !videoClient) {
-    return <div className="text-white w-full flex items-center justify-center">Failed to initialize chat</div>;
-  }
-
-  // @ts-ignore
-  return (
-    <div id="root">
-      <Chat client={chatClient}>
-        <StreamVideo client={videoClient}>
-          <StreamTheme as="main" className="main-container">
-            <div className="channel-list-container">
-              {/*@ts-ignore*/}
-              <ChannelListHeader user={chatClient.user} />
-              <ChannelList
-                sort={sort}
-                filters={filters}
-                showChannelSearch
-                options={{
-                  state: true,
-                  watch: true,
-                  presence: true,
-                }}
-                Preview={ChannelPreviewCustom}
-              />
-            </div>
-            <Channel />
-            <Video />
-          </StreamTheme>
-        </StreamVideo>
-      </Chat>
-    </div>
-  );
-}
-
-
+//
 // 'use client';
 //
 // import { useEffect, useState } from 'react';
@@ -672,25 +527,10 @@ export default function WhatsAppChat({ userId }: { userId: string }) {
 //       initChat();
 //     }
 //
-//     // return () => {
-//     //   chatClient?.disconnectUser();
-//     //   videoClient?.disconnectUser();
-//     // };
-//
 //     return () => {
-//       const disconnect = async () => {
-//         if (chatClient) {
-//           setChatClient(null);
-//           await chatClient.disconnectUser();
-//         }
-//         if (videoClient) {
-//           setVideoClient(null);
-//           await videoClient.disconnectUser();
-//         }
-//       };
-//       disconnect();
+//       chatClient?.disconnectUser();
+//       videoClient?.disconnectUser();
 //     };
-//
 //   }, [userId, apiKey, user]);
 //
 //   const ChannelPreviewCustom = (previewProps: any) => {
@@ -739,3 +579,412 @@ export default function WhatsAppChat({ userId }: { userId: string }) {
 //     </div>
 //   );
 // }
+
+
+// 'use client';
+//
+// import { useEffect, useState } from 'react';
+// import { StreamChat, ChannelSort, ChannelFilters } from 'stream-chat';
+// import { ChannelList, Chat, useChannelPreviewInfo } from 'stream-chat-react';
+// import { Channel } from './Channel';
+// import {
+//   StreamTheme,
+//   StreamVideo,
+//   StreamVideoClient,
+// } from '@stream-io/video-react-sdk';
+// import { Video } from './Video';
+// import '@stream-io/video-react-sdk/dist/css/styles.css';
+// import './layout.css';
+// import './styles/index.scss';
+// import ChannelListHeader from './ChannelListHeader';
+// import { useUser } from '@clerk/nextjs';
+//
+// export default function WhatsAppChat({ userId }: { userId: string }) {
+//   const apiKey = process.env.NEXT_PUBLIC_REACT_APP_STREAM_KEY || 'Set API Key';
+//
+//   const [isLoading, setIsLoading] = useState<boolean>(true);
+//   const [chatClient, setChatClient] = useState<StreamChat | null>(null);
+//   const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(null);
+//   const { user } = useUser();
+//
+//   const sort: ChannelSort = { last_message_at: -1 };
+//   const filters: ChannelFilters = {
+//     type: 'messaging',
+//     members: { $in: [userId] },
+//   };
+//
+//
+//   useEffect(() => {
+//     const initChat = async () => {
+//       const client = StreamChat.getInstance(apiKey);
+//
+//       try {
+//         const response = await fetch('/api/create-user', {
+//           method: 'POST',
+//           headers: {
+//             'Content-Type': 'application/json',
+//           },
+//           body: JSON.stringify({ userId: userId }),
+//         });
+//
+//         if (!response.ok) {
+//           throw new Error('Failed to create user');
+//         }
+//
+//         const { userToken } = await response.json();
+//
+//         await client.connectUser(
+//           {
+//             id: userId,
+//             name: user?.emailAddresses[0].emailAddress,
+//             image: user?.imageUrl,
+//           },
+//           userToken
+//         );
+//
+//         const _videoClient = new StreamVideoClient({
+//           apiKey,
+//           user: {
+//             id: userId,
+//             name: user?.emailAddresses[0].emailAddress,
+//             image: user?.imageUrl,
+//           },
+//           token: userToken,
+//         });
+//
+//         await _videoClient.connectUser({
+//           id: userId,
+//           name: user?.emailAddresses[0].emailAddress,
+//           image: user?.imageUrl,
+//         }, userToken);
+//
+//         setChatClient(client);
+//         setVideoClient(_videoClient);
+//         setIsLoading(false);
+//       } catch (error) {
+//         console.error('Error initializing chat:', error);
+//         setIsLoading(false);
+//       }
+//     };
+//
+//     if (user) {
+//       initChat();
+//     }
+//
+//     // No cleanup function
+//   }, [userId, apiKey, user]);
+//
+//
+//   // useEffect(() => {
+//   //
+//   //   let isMounted = true;
+//   //   const initChat = async () => {
+//   //     const client = StreamChat.getInstance(apiKey);
+//   //
+//   //     try {
+//   //       const response = await fetch('/api/create-user', {
+//   //         method: 'POST',
+//   //         headers: {
+//   //           'Content-Type': 'application/json',
+//   //         },
+//   //         body: JSON.stringify({ userId: userId }),
+//   //       });
+//   //
+//   //       if (!response.ok) {
+//   //         throw new Error('Failed to create user');
+//   //       }
+//   //
+//   //       const { userToken } = await response.json();
+//   //
+//   //       await client.connectUser(
+//   //         {
+//   //           id: userId,
+//   //           name: user?.emailAddresses[0].emailAddress,
+//   //           image: user?.imageUrl,
+//   //         },
+//   //         userToken
+//   //       );
+//   //
+//   //       const _videoClient = new StreamVideoClient({
+//   //         apiKey,
+//   //         user: {
+//   //           id: userId,
+//   //           name: user?.emailAddresses[0].emailAddress,
+//   //           image: user?.imageUrl,
+//   //         },
+//   //         token: userToken,
+//   //       });
+//   //
+//   //       await _videoClient.connectUser({
+//   //         id: userId,
+//   //         name: user?.emailAddresses[0].emailAddress,
+//   //         image: user?.imageUrl,
+//   //       }, userToken);
+//   //
+//   //
+//   //
+//   //       // if (isMounted) {
+//   //       //   setChatClient(client);
+//   //       //   setVideoClient(_videoClient);
+//   //       //   setIsLoading(false);
+//   //       // }
+//   //
+//   //       setChatClient(client);
+//   //       setVideoClient(_videoClient);
+//   //       setIsLoading(false);
+//   //
+//   //
+//   //     } catch (error) {
+//   //       console.error('Error initializing chat:', error);
+//   //       setIsLoading(false);
+//   //     }
+//   //   };
+//   //
+//   //   if (user) {
+//   //     initChat();
+//   //   }
+//   //
+//   //   // return () => {
+//   //   //   chatClient?.disconnectUser();
+//   //   //   videoClient?.disconnectUser();
+//   //   // };
+//   //
+//   //   // return () => {
+//   //   //   const disconnect = async () => {
+//   //   //     if (chatClient) {
+//   //   //       setChatClient(null);
+//   //   //       await chatClient.disconnectUser();
+//   //   //     }
+//   //   //     if (videoClient) {
+//   //   //       setVideoClient(null);
+//   //   //       await videoClient.disconnectUser();
+//   //   //     }
+//   //   //   };
+//   //   //   disconnect();
+//   //   // };
+//   //
+//   //
+//   //   // return () => {
+//   //   //   isMounted = false;
+//   //   //   chatClient?.disconnectUser();
+//   //   //   videoClient?.disconnectUser();
+//   //   // };
+//   //
+//   // }, [userId, apiKey, user]);
+//
+//   const ChannelPreviewCustom = (previewProps: any) => {
+//     const { displayImage, displayTitle } = useChannelPreviewInfo(previewProps);
+//
+//     return (
+//       <div className="channel-preview">
+//         <img src={displayImage} alt={displayTitle} className="channel-preview__avatar" />
+//         <div className="channel-preview__name">{displayTitle}</div>
+//       </div>
+//     );
+//   };
+//
+//   if (isLoading) {
+//     return <div className="text-white w-full flex items-center justify-center">Loading…</div>;
+//   }
+//
+//   if (!chatClient || !videoClient) {
+//     return <div className="text-white w-full flex items-center justify-center">Failed to initialize chat</div>;
+//   }
+//
+//   return (
+//     <div id="root">
+//       <Chat client={chatClient}>
+//         <StreamVideo client={videoClient}>
+//           <StreamTheme as="main" className="main-container">
+//             <div className="channel-list-container">
+//               <ChannelListHeader user={chatClient.user} />
+//               <ChannelList
+//                 sort={sort}
+//                 filters={filters}
+//                 showChannelSearch
+//                 options={{
+//                   state: true,
+//                   watch: true,
+//                   presence: true,
+//                 }}
+//                 Preview={ChannelPreviewCustom}
+//               />
+//             </div>
+//             <Channel />
+//             <Video />
+//           </StreamTheme>
+//         </StreamVideo>
+//       </Chat>
+//     </div>
+//   );
+// }
+
+'use client';
+
+import { useEffect, useState } from 'react';
+import { StreamChat, ChannelSort, ChannelFilters } from 'stream-chat';
+import {
+  ChannelList,
+  Chat,
+  ChannelPreviewUIComponentProps,
+  Avatar,
+  useChatContext
+} from 'stream-chat-react';
+import { Channel } from './Channel';
+import {
+  StreamTheme,
+  StreamVideo,
+  StreamVideoClient,
+} from '@stream-io/video-react-sdk';
+import { Video } from './Video';
+import '@stream-io/video-react-sdk/dist/css/styles.css';
+import './layout.css';
+import './styles/index.scss';
+import ChannelListHeader from './ChannelListHeader';
+import { useUser } from '@clerk/nextjs';
+
+const ChannelPreviewCustom = (props: ChannelPreviewUIComponentProps) => {
+  const { channel, setActiveChannel } = props;
+  const { client } = useChatContext();
+
+  const members = Object.values(channel.state.members).filter(
+    ({ user }) => user?.id !== client.userID
+  );
+  const otherMember = members[0]?.user;
+
+  const displayName = otherMember?.name || otherMember?.id || 'Unknown User';
+  const displayImage = otherMember?.image;
+
+  const handleClick = () => {
+    if (setActiveChannel) {
+      setActiveChannel(channel);
+    }
+  };
+
+  return (
+    <div className="channel-preview__container" onClick={handleClick}>
+      <Avatar
+        image={displayImage}
+        name={displayName}
+        size={32}
+        shape="rounded"
+      />
+      <div className="channel-preview__content">
+        <p className="channel-preview__name">{displayName}</p>
+      </div>
+    </div>
+  );
+};
+
+export default function WhatsAppChat({ userId }: { userId: string }) {
+  const apiKey = process.env.NEXT_PUBLIC_REACT_APP_STREAM_KEY || 'Set API Key';
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [chatClient, setChatClient] = useState<StreamChat | null>(null);
+  const [videoClient, setVideoClient] = useState<StreamVideoClient | null>(null);
+  const { user } = useUser();
+
+  const sort: ChannelSort = { last_message_at: -1 };
+  const filters: ChannelFilters = {
+    type: 'messaging',
+    members: { $in: [userId] },
+  };
+
+  useEffect(() => {
+    const initChat = async () => {
+      const client = StreamChat.getInstance(apiKey);
+
+      try {
+        const response = await fetch('/api/create-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId: userId }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create user');
+        }
+
+        const { userToken } = await response.json();
+
+        await client.connectUser(
+          {
+            id: userId,
+            name: user?.emailAddresses[0].emailAddress,
+            image: user?.imageUrl,
+          },
+          userToken
+        );
+
+        const _videoClient = new StreamVideoClient({
+          apiKey,
+          user: {
+            id: userId,
+            name: user?.emailAddresses[0].emailAddress,
+            image: user?.imageUrl,
+          },
+          token: userToken,
+        });
+
+        await _videoClient.connectUser({
+          id: userId,
+          name: user?.emailAddresses[0].emailAddress,
+          image: user?.imageUrl,
+        }, userToken);
+
+        setChatClient(client);
+        setVideoClient(_videoClient);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error initializing chat:', error);
+        setIsLoading(false);
+      }
+    };
+
+    if (user) {
+      initChat();
+    }
+
+    // No cleanup function
+  }, [userId, apiKey, user]);
+
+  if (isLoading) {
+    return <div className="text-white w-full flex items-center justify-center">Loading…</div>;
+  }
+
+  if (!chatClient || !videoClient) {
+    return <div className="text-white w-full flex items-center justify-center">Failed to initialize chat</div>;
+  }
+
+  return (
+    <div id="root">
+      <Chat client={chatClient}>
+        <StreamVideo client={videoClient}>
+          <StreamTheme as="main" className="main-container">
+            <div className="channel-list-container">
+              {/*@ts-ignore*/}
+              <ChannelListHeader user={chatClient.user} />
+              <ChannelList
+                sort={sort}
+                filters={filters}
+                showChannelSearch
+                options={{
+                  state: true,
+                  watch: true,
+                  presence: true,
+                }}
+                Preview={(previewProps: ChannelPreviewUIComponentProps) => (
+                  <ChannelPreviewCustom {...previewProps} />
+                )}
+              />
+            </div>
+            <Channel />
+            <Video />
+          </StreamTheme>
+        </StreamVideo>
+      </Chat>
+    </div>
+  );
+}

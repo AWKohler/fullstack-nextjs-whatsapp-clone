@@ -80,3 +80,32 @@ main {
   --str-chat__border-radius-circle: 6px;
   --str-chat__avatar-border-radius: 50%;
 }
+
+
+.channel-preview__container {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.channel-preview__container:hover {
+  background-color: #f0f0f0;
+}
+
+.channel-preview__content {
+  margin-left: 12px;
+}
+
+.channel-preview__name {
+  font-weight: 500;
+  margin: 0;
+}
+
+/* If you want to add styling for the last message preview */
+.channel-preview__last-message {
+  font-size: 0.9em;
+  color: #666;
+  margin: 0;
+}
